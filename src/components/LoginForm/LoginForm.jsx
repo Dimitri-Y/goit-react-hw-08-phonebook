@@ -60,7 +60,7 @@ export const LoginForm = () => {
             />
           </li>
         </ul>
-        <button type="submit">Add contact</button>
+        <button type="submit">Login</button>
        </form>
     
   );

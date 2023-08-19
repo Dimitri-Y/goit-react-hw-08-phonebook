@@ -78,7 +78,7 @@ export const RegisterForm = () => {
             />
           </li>
         </ul>
-        <button type="submit">Add contact</button>
+        <button type="submit">Register</button>
        </form>
   );
 };

@@ -11,6 +11,6 @@ export const Head = styled.h1`
   display: flex;
   justify-content: center;
 
-  margin-top: 300px;
+  margin-top: 100px;
   font-size: 80px;
 `;

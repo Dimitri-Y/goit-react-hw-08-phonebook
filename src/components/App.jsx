@@ -1,39 +1,61 @@
-import  ContactForm  from './ContactForm/ContactForm';
-import  Filter  from './Filter/Filter';
-import  ContactList  from './ContactList/ContactList';
-import  {useSelector,useDispatch}  from 'react-redux';
-import { useEffect } from 'react';
-import { fetchContacts } from '../redux/operations';
-import { selectContacts, selectIsLoading, selectError } from 'redux/selectors';
+import { Route, Routes } from 'react-router-dom';
+import { useEffect, lazy, Suspense } from 'react';
+import { refreshUser } from 'redux/auth/operations';
+import { useDispatch } from 'react-redux';
+import { useAuth } from 'hooks/useAuth';
+import { Navigation } from '../components/Navigation/Navigation';
+import PrivateRoute from '../components/PrivateRoute';
+import { RestrictedRoute } from '../components/RestrictedRoute';
+import { Container } from './SharedLayout/SharedLayout.styled';
 
-const App = () =>
-{
-  const contacts = useSelector(selectContacts);
+const HomePage = lazy(() => import('pages/Home'));
+const RegisterPage = lazy(() => import('pages/Register'));
+const LoginPage = lazy(() => import('pages/Login'));
+const ContactsPage = lazy(() => import('pages/Contacts'));
 
+const App = () => {
   const dispatch = useDispatch();
-  const isLoading = useSelector(selectIsLoading);
-  const error = useSelector(selectError);
+  const { isRefreshing } = useAuth();
 
   useEffect(() => {
-    dispatch(fetchContacts());
+    dispatch(refreshUser());
   }, [dispatch]);
 
-    return (
-      <div
-        style={{
-          height: '100vh',
-          fontSize: 20,
-          color: '#010101',
-          padding:'16px',
-        }}
-      >
-       <ContactForm />
-      {isLoading && !error && <b>Request in progress...</b>}
-      {contacts.length !== 0 && <h2>Contacts</h2>}
-      {contacts.length !== 0 && <Filter />}
-      {contacts.length !== 0 && <ContactList />}
-      </div>
-    );
-}
-
+  return isRefreshing ? (
+    <b>Refreshing user...</b>
+  ) : (
+    <Container>
+    <Navigation />
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/register"
+            element={
+              <RestrictedRoute
+                redirectTo="/contacts"
+                component={<RegisterPage />}
+              />
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <RestrictedRoute
+                redirectTo="/contacts"
+                component={<LoginPage />}
+              />
+            }
+          />
+          <Route
+            path="/contacts"
+            element={
+              <PrivateRoute redirectTo="/login" component={<ContactsPage />} />
+            }
+          />
+        </Routes>
+      </Suspense>
+      </Container>
+  );
+};
 export default App;
